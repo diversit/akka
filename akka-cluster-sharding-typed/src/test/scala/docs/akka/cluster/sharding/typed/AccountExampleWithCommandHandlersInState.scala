@@ -7,10 +7,9 @@ package docs.akka.cluster.sharding.typed
 import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
 import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
+import akka.cluster.sharding.typed.scaladsl.EventSourcedEntity
 import akka.persistence.typed.ExpectingReply
-import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.Effect
-import akka.persistence.typed.scaladsl.EventSourcedBehavior
 
 /**
  * Bank account example illustrating:
@@ -21,7 +20,7 @@ import akka.persistence.typed.scaladsl.EventSourcedBehavior
  */
 object AccountExampleWithCommandHandlersInState {
 
-  //##account-entity
+  //#account-entity
   object AccountEntity {
     // Command
     sealed trait AccountCommand[Reply] extends ExpectingReply[Reply]
@@ -133,18 +132,19 @@ object AccountExampleWithCommandHandlersInState {
         throw new IllegalStateException(s"unexpected event [$event] in state [ClosedAccount]")
     }
 
-    val entityTypeKey: EntityTypeKey[AccountCommand[_]] =
+    val TypeKey: EntityTypeKey[AccountCommand[_]] =
       EntityTypeKey[AccountCommand[_]]("Account")
 
-    def behavior(accountNumber: String): Behavior[AccountCommand[_]] = {
-      EventSourcedBehavior.withEnforcedReplies[AccountCommand[_], AccountEvent, Account](
-        PersistenceId(s"Account|$accountNumber"),
+    def apply(accountNumber: String): Behavior[AccountCommand[_]] = {
+      EventSourcedEntity.withEnforcedReplies[AccountCommand[_], AccountEvent, Account](
+        TypeKey,
+        accountNumber,
         EmptyAccount,
         (state, cmd) => state.applyCommand(cmd),
         (state, event) => state.applyEvent(event))
     }
 
   }
-  //##account-entity
+  //#account-entity
 
 }

@@ -9,6 +9,7 @@ import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.cluster.sharding.typed.javadsl.EntityTypeKey;
+import akka.cluster.sharding.typed.javadsl.EventSourcedEntityWithEnforcedReplies;
 import akka.persistence.typed.ExpectingReply;
 import akka.persistence.typed.PersistenceId;
 import akka.persistence.typed.javadsl.CommandHandlerWithReply;
@@ -24,13 +25,13 @@ import java.math.BigDecimal;
  * Bank account example illustrating: - different state classes representing the lifecycle of the
  * account - null as emptyState - event handlers that delegate to methods in the state classes -
  * command handlers that delegate to methods in the EventSourcedBehavior class - replies of various
- * types, using ExpectingReply and EventSourcedBehaviorWithEnforcedReplies
+ * types, using ExpectingReply and EventSourcedEntityWithEnforcedReplies
  */
 public interface AccountExampleWithNullState {
 
   // #account-entity
   public class AccountEntity
-      extends EventSourcedBehaviorWithEnforcedReplies<
+      extends EventSourcedEntityWithEnforcedReplies<
           AccountEntity.AccountCommand, AccountEntity.AccountEvent, AccountEntity.Account> {
 
     public static final EntityTypeKey<AccountCommand> ENTITY_TYPE_KEY =
@@ -191,12 +192,12 @@ public interface AccountExampleWithNullState {
 
     public static class ClosedAccount implements Account {}
 
-    public static Behavior<AccountCommand> behavior(String accountNumber) {
-      return Behaviors.setup(context -> new AccountEntity(accountNumber));
+    public static AccountEntity create(String accountNumber) {
+      return new AccountEntity(accountNumber);
     }
 
     public AccountEntity(String accountNumber) {
-      super(new PersistenceId(accountNumber));
+      super(ENTITY_TYPE_KEY, accountNumber);
     }
 
     @Override

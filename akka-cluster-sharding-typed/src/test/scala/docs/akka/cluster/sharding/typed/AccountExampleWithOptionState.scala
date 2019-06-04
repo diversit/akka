@@ -7,10 +7,9 @@ package docs.akka.cluster.sharding.typed
 import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
 import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
+import akka.cluster.sharding.typed.scaladsl.EventSourcedEntity
 import akka.persistence.typed.ExpectingReply
-import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.Effect
-import akka.persistence.typed.scaladsl.EventSourcedBehavior
 
 /**
  * Bank account example illustrating:
@@ -117,12 +116,13 @@ object AccountExampleWithOptionState {
         throw new IllegalStateException(s"unexpected event [$event] in state [ClosedAccount]")
     }
 
-    val entityTypeKey: EntityTypeKey[AccountCommand[_]] =
+    val TypeKey: EntityTypeKey[AccountCommand[_]] =
       EntityTypeKey[AccountCommand[_]]("Account")
 
-    def behavior(accountNumber: String): Behavior[AccountCommand[_]] = {
-      EventSourcedBehavior.withEnforcedReplies[AccountCommand[_], AccountEvent, Option[Account]](
-        PersistenceId(s"Account|$accountNumber"),
+    def apply(accountNumber: String): Behavior[AccountCommand[_]] = {
+      EventSourcedEntity.withEnforcedReplies[AccountCommand[_], AccountEvent, Option[Account]](
+        TypeKey,
+        accountNumber,
         None,
         (state, cmd) =>
           state match {

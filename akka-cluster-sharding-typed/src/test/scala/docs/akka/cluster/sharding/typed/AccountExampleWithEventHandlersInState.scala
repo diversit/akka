@@ -7,10 +7,9 @@ package docs.akka.cluster.sharding.typed
 import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
 import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
+import akka.cluster.sharding.typed.scaladsl.EventSourcedEntity
 import akka.persistence.typed.ExpectingReply
-import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.Effect
-import akka.persistence.typed.scaladsl.EventSourcedBehavior
 import akka.persistence.typed.scaladsl.ReplyEffect
 
 /**
@@ -90,7 +89,7 @@ object AccountExampleWithEventHandlersInState {
         throw new IllegalStateException(s"unexpected event [$event] in state [ClosedAccount]")
     }
 
-    val entityTypeKey: EntityTypeKey[AccountCommand[_]] =
+    val TypeKey: EntityTypeKey[AccountCommand[_]] =
       EntityTypeKey[AccountCommand[_]]("Account")
 
     // Note that after defining command, event and state classes you would probably start here when writing this.
@@ -98,13 +97,8 @@ object AccountExampleWithEventHandlersInState {
     // to generate the stub with types for the command and event handlers.
 
     //#withEnforcedReplies
-    def behavior(accountNumber: String): Behavior[AccountCommand[_]] = {
-      // FIXME use EventSourcedEntity.withEnforcedReplies when https://github.com/akka/akka/pull/26692 has been merged
-      EventSourcedBehavior.withEnforcedReplies(
-        PersistenceId(s"Account|$accountNumber"),
-        EmptyAccount,
-        commandHandler,
-        eventHandler)
+    def apply(accountNumber: String): Behavior[AccountCommand[_]] = {
+      EventSourcedEntity.withEnforcedReplies(TypeKey, accountNumber, EmptyAccount, commandHandler, eventHandler)
     }
     //#withEnforcedReplies
 

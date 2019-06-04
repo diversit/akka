@@ -49,11 +49,9 @@ public class AccountExampleTest extends JUnitSuite {
       cluster.manager().tell(new Join(cluster.selfMember().address()));
 
       ClusterSharding sharding = ClusterSharding.get(testKit.system());
-      // FIXME use Entity.ofEventSourcedEntityWithEnforcedReplies when
-      // https://github.com/akka/akka/pull/26692 has been merged
       sharding.init(
-          Entity.of(
-              AccountEntity.ENTITY_TYPE_KEY, ctx -> AccountEntity.behavior(ctx.getEntityId())));
+          Entity.ofEventSourcedEntityWithEnforcedReplies(
+              AccountEntity.ENTITY_TYPE_KEY, ctx -> AccountEntity.create(ctx.getEntityId())));
       _sharding = sharding;
     }
     return _sharding;
