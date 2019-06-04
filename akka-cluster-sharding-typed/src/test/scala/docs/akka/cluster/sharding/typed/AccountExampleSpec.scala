@@ -55,7 +55,9 @@ class AccountExampleSpec extends ScalaTestWithActorTestKit(AccountExampleSpec.co
     }
 
     "handle Withdraw" in {
-      val probe = createTestProbe[OperationResult]()
+      // OperationResult is the expected reply type for these commands, but it should also be
+      // possible to use the super type AccountCommandReply
+      val probe = createTestProbe[AccountCommandReply]()
       val ref = ClusterSharding(system).entityRefFor(AccountEntity.TypeKey, "2")
       ref ! CreateAccount(probe.ref)
       probe.expectMessage(Confirmed)
