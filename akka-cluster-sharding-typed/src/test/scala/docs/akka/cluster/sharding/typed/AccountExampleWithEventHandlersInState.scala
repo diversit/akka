@@ -26,7 +26,7 @@ object AccountExampleWithEventHandlersInState {
   object AccountEntity {
     // Command
     //#reply-command
-    sealed trait AccountCommand[Reply] extends ExpectingReply[Reply]
+    sealed trait AccountCommand[Reply <: AccountCommandReply] extends ExpectingReply[Reply]
     //#reply-command
     final case class CreateAccount(override val replyTo: ActorRef[OperationResult])
         extends AccountCommand[OperationResult]
