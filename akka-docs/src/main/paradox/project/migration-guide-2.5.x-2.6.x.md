@@ -314,7 +314,7 @@ Akka Typed APIs are still marked as [may change](../common/may-change.md) and th
   prefer `Behaviors.withTimers`.
 * `TimerScheduler.startPeriodicTimer`, replaced by `startTimerWithFixedDelay` or `startTimerAtFixedRate`
 * `Routers.pool` now take a factory function rather than a `Behavior` to protect against accidentally sharing same behavior instance and state across routees.
-* The `request` parameter in Distributed Data commands was removed, in favor of using `ask`.
+* The `request` parameter in Distributed Data commands was removed, in favor of using `ask` with the new `ReplicatorMessageAdapter`.
 
 ### Akka Typed Stream API changes
 
